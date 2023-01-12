@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token,\
     jwt_required, get_jwt_identity
-from app.extensions import db
 from app.models import User, user_schema, users_schema,\
-    Address, address_schema, address_schemas, Base
+    Address, address_schema, address_schemas
 
 
 bp = Blueprint('bp', __name__)
@@ -121,7 +120,7 @@ def delete_address(id):
     address = Address.query.get_or_404(id)
     address.delete()
     # Return deleted address
-    return address_schema.jsonify(address)     
+    return address_schema.jsonify(address)
 
 
 @bp.route('/address', methods=['GET'])

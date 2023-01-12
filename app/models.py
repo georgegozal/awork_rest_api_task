@@ -63,7 +63,6 @@ class Address(db.Model, Base):
     street = db.Column(db.String(120))
     zip_code = db.Column(db.String(120), nullable=False)
 
-
     @classmethod
     def update_address(self,  **kwargs):
         for key, value in kwargs.items():
