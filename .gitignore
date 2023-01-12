@@ -1,2 +1,10 @@
 .*
 !.gitignore
+!.flaskenv
+
+# Ignore all __pycache__ folders
+**__pycache__**
+
+migrations/
+
+app/db.sqlite
