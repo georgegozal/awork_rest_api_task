@@ -3,8 +3,27 @@ from .extensions import db
 from .extensions import ma
 
 
+class Base:
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def update(cls, id, **kwargs):
+        cls.query.filter_by(id=id).update(kwargs)
+        db.session.commit()
+
+
 # Product Class/Model
-class User(db.Model):
+class User(db.Model, Base):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -34,7 +53,7 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
-class Address(db.Model):
+class Address(db.Model, Base):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -44,18 +63,13 @@ class Address(db.Model):
     street = db.Column(db.String(120))
     zip_code = db.Column(db.String(120), nullable=False)
 
+
     @classmethod
-    def update_address(cls, id, country=None, city=None, street=None, zip_code=None):
-        address = Address.query.get_or_404(id)
-        if country:
-            address.country = country
-        if city:
-            address.city = city
-        if street:
-            address.street = street
-        if zip_code:
-            address.zip_code = zip_code
-        db.session.commit()
+    def update_address(self,  **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            db.session.add(self)
+            db.session.commit()
 
 
 # User Schema
