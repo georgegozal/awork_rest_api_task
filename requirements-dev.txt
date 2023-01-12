@@ -1,0 +1,4 @@
+tox==3.26.0
+flake8==5.0.4
+
+-r requirements.txt
