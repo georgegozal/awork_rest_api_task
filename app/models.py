@@ -6,10 +6,10 @@ from .extensions import ma
 # Product Class/Model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    password_hash = db.Column(db.String(100))
-    first_name = db.Column(db.String(100))
-    last_name = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True, index=True, nullable=False)
+    password_hash = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
 
     def __init__(self, email, password, first_name, last_name):
         self.email = email
