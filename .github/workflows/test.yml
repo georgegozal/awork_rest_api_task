@@ -30,13 +30,3 @@ jobs:
         
       - name: Running Tests with tox
         run:  tox
-
-
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag rest_api:$(date +%s)
