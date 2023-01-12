@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token,\
     jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models import User, user_schema, users_schema,\
-    Address, address_schema, address_schemas
+    Address, address_schema, address_schemas, Base
 
 
 bp = Blueprint('bp', __name__)
@@ -19,8 +19,7 @@ def sign_up():
 
     new_user = User(email, password, first_name, last_name)
 
-    db.session.add(new_user)
-    db.session.commit()
+    new_user.save()
 
     return user_schema.jsonify(new_user)
 
@@ -49,7 +48,7 @@ def protected():
 # Get All Users
 @bp.route('/user', methods=['GET'])
 def get_users():
-    all_users = User.query.all()
+    all_users = User.get_all()
     result = users_schema.dump(all_users)
     return jsonify(result)
 
@@ -57,27 +56,16 @@ def get_users():
 # Get Single User
 @bp.route('/user/<id>', methods=['GET'])
 def get_user(id):
-    user = User.query.get(id)
+    user = User.query.get_or_404(id)
     return user_schema.jsonify(user)
 
 
 # Update User
 @bp.route('/user/<id>', methods=['PUT'])
 def update_user(id):
-    user = User.query.get(id)
-
-    email = request.json['email']
-    password = request.json['password']
-    first_name = request.json['first_name']
-    last_name = request.json['last_name']
-
-    user.email = email
-    user.password = password
-    user.first_name = first_name
-    user.last_name = last_name
-
-    db.session.commit()
-
+    data = request.get_json()
+    user = User.query.get_or_404(id)
+    user.update(id, **data)
     return user_schema.jsonify(user)
 
 
@@ -85,9 +73,7 @@ def update_user(id):
 @bp.route('/user/<id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.get(id)
-    db.session.delete(user)
-    db.session.commit()
-
+    user.delete()
     return user_schema.jsonify(user)
 
 
@@ -112,11 +98,10 @@ def add_address():
             zip_code=zip_code
         )
 
-        db.session.add(new_address)
-        db.session.commit()
+        new_address.save()
     else:
         return jsonify({"msg": "Address for current user already exists"}), 400
-
+    # return new address
     return address_schema.jsonify(new_address)
 
 
@@ -125,25 +110,23 @@ def add_address():
 def update_address(id):
     data = request.get_json()
     address = Address.query.get_or_404(id)
-
-    address.update_address(
-        id,
-        country=data.get('country'),
-        city=data.get('city'),
-        street=data.get('street'),
-        zip_code=data.get('zip_code')
-        )
-    db.session.commit()
+    address.update(id, **data)
+    # return updated address
     return address_schema.jsonify(address)
 
 
-@bp.route('/address/<id>', methods=['DELETE'])
+@bp.route('/address/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_address():
-    pass
+def delete_address(id):
+    address = Address.query.get_or_404(id)
+    address.delete()
+    # Return deleted address
+    return address_schema.jsonify(address)     
 
 
 @bp.route('/address', methods=['GET'])
 @jwt_required()
 def list_addresses():
-    pass
+    all_addresses = Address.get_all()
+    result = address_schemas.dump(all_addresses)
+    return jsonify(result)
