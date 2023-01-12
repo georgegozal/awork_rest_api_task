@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.flaskenv
+!.github
 
 # Ignore all __pycache__ folders
 **__pycache__**
