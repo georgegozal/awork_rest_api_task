@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify
 from .config import Config
 from .extensions import db, migrate, login_manager, ma, jwt
+from .views import bp
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    app.register_blueprint(bp)
     register_extensions(app)
+    return app
 
 
 def register_extensions(app):
