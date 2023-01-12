@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token,\
     jwt_required, get_jwt_identity
 from app.extensions import db
-from app.models import User, user_schema, users_schema
+from app.models import User, user_schema, users_schema,\
+    Address, address_schema, address_schemas
 
 
 bp = Blueprint('bp', __name__)
@@ -88,3 +89,61 @@ def delete_user(id):
     db.session.commit()
 
     return user_schema.jsonify(user)
+
+
+@bp.route('/address', methods=['POST'])
+@jwt_required()
+def add_address():
+
+    current_user = get_jwt_identity()
+    user_id = User.query.filter_by(email=current_user).first().id
+    address = Address.query.filter_by(user_id=user_id).first()
+    if not address:
+        country = request.json['country']
+        city = request.json['city']
+        street = request.json['street']
+        zip_code = request.json['zip_code']
+
+        new_address = Address(
+            user_id=user_id,
+            country=country,
+            city=city,
+            street=street,
+            zip_code=zip_code
+        )
+
+        db.session.add(new_address)
+        db.session.commit()
+    else:
+        return jsonify({"msg": "Address for current user already exists"}), 400
+
+    return address_schema.jsonify(new_address)
+
+
+@bp.route('/address/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_address(id):
+    data = request.get_json()
+    address = Address.query.get_or_404(id)
+
+    address.update_address(
+        id,
+        country=data.get('country'),
+        city=data.get('city'),
+        street=data.get('street'),
+        zip_code=data.get('zip_code')
+        )
+    db.session.commit()
+    return address_schema.jsonify(address)
+
+
+@bp.route('/address/<id>', methods=['DELETE'])
+@jwt_required()
+def delete_address():
+    pass
+
+
+@bp.route('/address', methods=['GET'])
+@jwt_required()
+def list_addresses():
+    pass
