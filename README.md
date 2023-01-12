@@ -1,4 +1,4 @@
-# awork_rest_api_task
+# awork_rest_api_task  [![build](https://github.com/georgegozal/awork_rest_api_task/actions/workflows/test.yml/badge.svg)](https://github.com/georgegozal/awork_rest_api_task/actions/workflows/test.yml)
 
 
 # Steps for running this app:
