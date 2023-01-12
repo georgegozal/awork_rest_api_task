@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from .config import Config
-from .extensions import db, login_manager, ma, jwt
+from .extensions import db, migrate, login_manager, ma, jwt
 
 
 def create_app():
@@ -14,6 +14,9 @@ def register_extensions(app):
 
     # Setup Flask-SQLAlchemy
     db.init_app(app)
+
+    # Setup Flask-Migrate
+    migrate.init_app(app, db)
 
     # Setup Flask-Marshmallow
     ma.init_app(app)
