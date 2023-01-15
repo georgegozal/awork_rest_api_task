@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token,\
     jwt_required, get_jwt_identity
-from app.models import User, user_schema, users_schema,\
+from app.models import User, user_schema,\
     Address, address_schema, address_schemas
 
 

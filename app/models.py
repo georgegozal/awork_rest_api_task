@@ -68,8 +68,6 @@ class UserSchema(ma.Schema):
 # Init schema
 user_schema = UserSchema()
 
-users_schema = UserSchema(many=True)
-
 
 class AddressSchema(ma.Schema):
     class Meta:
