@@ -70,10 +70,15 @@ def update_address(id):
 @bp.route('/address/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_address(id):
+    current_user = get_jwt_identity()
     address = Address.query.get_or_404(id)
-    address.delete()
-    # Return deleted address
-    return address_schema.jsonify(address)
+    if address.user_id != current_user:
+        return jsonify(
+            {"msg": "You are not allowed to delete this address."}), 403
+    else:
+        address.delete()
+        # Return deleted address
+        return address_schema.jsonify(address)
 
 
 @bp.route('/address', methods=['GET'])
