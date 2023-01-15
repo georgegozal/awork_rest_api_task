@@ -11,13 +11,12 @@ bp = Blueprint('bp', __name__)
 # Register User
 @bp.route('/user', methods=['POST'])
 def sign_up():
-    email = request.json['email']
-    password = request.json['password']
-    first_name = request.json['first_name']
-    last_name = request.json['last_name']
-
-    new_user = User(email, password, first_name, last_name)
-
+    data = request.get_json()
+    u = User.query.filter_by(email=data.get('email')).first()
+    if u:
+        return jsonify({"msg": "A user with this email already exists."}), 409
+    new_user = User()
+    new_user.create(**data)
     new_user.save()
 
     return user_schema.jsonify(new_user)
@@ -26,81 +25,33 @@ def sign_up():
 # Log In
 @bp.route('/login', methods=['POST'])
 def login():
-    email = request.json['email']
-    password = request.json['password']
+    email = request.json.get("email")
+    password = request.json.get("password")
     user = User.query.filter_by(email=email).first()
     if user and user.verify_password(password):
-        access_token = create_access_token(identity=email)
+        access_token = create_access_token(identity=user.id)
         return jsonify(access_token=access_token)
     else:
         return jsonify({"msg": "Bad email or password"}), 401
 
 
-# Get Logined user email
-@bp.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
-
-# Get All Users
-@bp.route('/user', methods=['GET'])
-def get_users():
-    all_users = User.get_all()
-    result = users_schema.dump(all_users)
-    return jsonify(result)
-
-
-# Get Single User
-@bp.route('/user/<id>', methods=['GET'])
-def get_user(id):
-    user = User.query.get_or_404(id)
-    return user_schema.jsonify(user)
-
-
-# Update User
-@bp.route('/user/<id>', methods=['PUT'])
-def update_user(id):
-    data = request.get_json()
-    user = User.query.get_or_404(id)
-    user.update(id, **data)
-    return user_schema.jsonify(user)
-
-
-# Delete User
-@bp.route('/user/<id>', methods=['DELETE'])
-def delete_user(id):
-    user = User.query.get(id)
-    user.delete()
-    return user_schema.jsonify(user)
-
-
+# add New address for Logged user
 @bp.route('/address', methods=['POST'])
 @jwt_required()
 def add_address():
 
     current_user = get_jwt_identity()
-    user_id = User.query.filter_by(email=current_user).first().id
-    address = Address.query.filter_by(user_id=user_id).first()
-    if not address:
-        country = request.json['country']
-        city = request.json['city']
-        street = request.json['street']
-        zip_code = request.json['zip_code']
+    data = request.get_json()
 
-        new_address = Address(
-            user_id=user_id,
-            country=country,
-            city=city,
-            street=street,
-            zip_code=zip_code
+    new_address = Address()
+    new_address.create(
+        user_id=current_user,
+        country=data.get("country"),
+        city=data.get("city"),
+        street=data.get("street"),
+        zip_code=data.get("zip_code")
         )
-
-        new_address.save()
-    else:
-        return jsonify({"msg": "Address for current user already exists"}), 400
-    # return new address
+    new_address.save()
     return address_schema.jsonify(new_address)
 
 
