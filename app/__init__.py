@@ -26,3 +26,6 @@ def register_extensions(app):
 
     # Setup Flask-JWT-Extended
     jwt.init_app(app)
+
+    with app.app_context():
+        db.create_all()

@@ -67,6 +67,7 @@ def update_address(id):
         return address_schema.jsonify(address)
 
 
+# Delete User`s Address
 @bp.route('/address/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_address(id):
@@ -81,9 +82,11 @@ def delete_address(id):
         return address_schema.jsonify(address)
 
 
+# Get User`s Addresses
 @bp.route('/address', methods=['GET'])
 @jwt_required()
 def list_addresses():
-    all_addresses = Address.get_all()
+    current_user = get_jwt_identity()
+    all_addresses = Address.query.filter_by(user_id=current_user).all()
     result = address_schemas.dump(all_addresses)
     return jsonify(result)

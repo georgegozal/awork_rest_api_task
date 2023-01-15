@@ -18,10 +18,6 @@ class Base:
         db.session.commit()
 
     @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    @classmethod
     def update(cls, id, **kwargs):
         cls.query.filter_by(id=id).update(kwargs)
         db.session.commit()
@@ -33,12 +29,11 @@ class User(db.Model, Base):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, index=True, nullable=False)
-    password_hash = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(100), nullable=False, unique=True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
 
     addresses = db.relationship('Address', backref='user', lazy=True)
-
 
     # password
     @property
