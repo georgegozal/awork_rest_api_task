@@ -46,10 +46,7 @@ def add_address():
     new_address = Address()
     new_address.create(
         user_id=current_user,
-        country=data.get("country"),
-        city=data.get("city"),
-        street=data.get("street"),
-        zip_code=data.get("zip_code")
+        **data
         )
     new_address.save()
     return address_schema.jsonify(new_address)
@@ -59,10 +56,15 @@ def add_address():
 @jwt_required()
 def update_address(id):
     data = request.get_json()
+    current_user = get_jwt_identity()
     address = Address.query.get_or_404(id)
-    address.update(id, **data)
-    # return updated address
-    return address_schema.jsonify(address)
+    if address.user_id != current_user:
+        return jsonify(
+            {"msg": "You are not allowed to update this address."}), 403
+    else:
+        address.update(id, **data)
+        # return updated address
+        return address_schema.jsonify(address)
 
 
 @bp.route('/address/<int:id>', methods=['DELETE'])

@@ -4,6 +4,11 @@ from .extensions import ma
 
 
 class Base:
+
+    def create(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -34,11 +39,6 @@ class User(db.Model, Base):
 
     addresses = db.relationship('Address', backref='user', lazy=True)
 
-    def __init__(self, email, password, first_name, last_name):
-        self.email = email
-        self.password = password
-        self.first_name = first_name
-        self.last_name = last_name
 
     # password
     @property
@@ -78,7 +78,7 @@ users_schema = UserSchema(many=True)
 
 class AddressSchema(ma.Schema):
     class Meta:
-        fields = ('user_id', 'country', 'city', 'street', 'zip_code')
+        fields = ('id', 'user_id', 'country', 'city', 'street', 'zip_code')
 
 
 address_schema = AddressSchema()
