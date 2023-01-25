@@ -19,7 +19,7 @@ def sign_up():
     new_user.create(**data)
     new_user.save()
 
-    return user_schema.jsonify(new_user)
+    return user_schema.jsonify(new_user), 201
 
 
 # Log In
@@ -49,7 +49,7 @@ def add_address():
         **data
         )
     new_address.save()
-    return address_schema.jsonify(new_address)
+    return address_schema.jsonify(new_address), 201
 
 
 @bp.route('/address/<int:id>', methods=['PUT'])
@@ -64,7 +64,7 @@ def update_address(id):
     else:
         address.update(id, **data)
         # return updated address
-        return address_schema.jsonify(address)
+        return address_schema.jsonify(address), 200
 
 
 # Delete User`s Address
@@ -79,7 +79,7 @@ def delete_address(id):
     else:
         address.delete()
         # Return deleted address
-        return address_schema.jsonify(address)
+        return address_schema.jsonify(address), 200
 
 
 # Get User`s Addresses
@@ -87,6 +87,7 @@ def delete_address(id):
 @jwt_required()
 def list_addresses():
     current_user = get_jwt_identity()
-    all_addresses = Address.query.filter_by(user_id=current_user).all()
+    all_addresses = User.query.get_or_404(current_user).addresses
+    # all_addresses = Address.query.filter_by(user_id=current_user).all()
     result = address_schemas.dump(all_addresses)
-    return jsonify(result)
+    return jsonify(result), 200
